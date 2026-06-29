@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile — Lobby Y2K</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <script src="/js/env.js"></script>
+</head>
+<body>
+<nav class="nav" id="main-nav">
+  <a href="/" class="nav__logo"><img src="https://res.cloudinary.com/duw82qno0/image/upload/v1782674045/C705ADF3-47CC-4FC6-A026-73B3F2F27355_ycltrb.png" alt="Lobby Y2K" /></a>
+  <div class="nav__links"><a href="/" class="nav__link">Home</a><a href="/pages/search.html" class="nav__link">Shop</a></div>
+  <div class="nav__actions">
+    <button class="nav__icon-btn" onclick="location.href='/pages/cart.html'" style="position:relative">🛒<span class="cart-badge" style="display:none">0</span></button>
+    <button class="nav__icon-btn" id="theme-toggle" onclick="handleThemeToggle()">🌙</button>
+    <button class="nav__icon-btn" id="auth-btn">👤</button>
+  </div>
+</nav>
+<main class="page page-enter">
+  <div class="container" style="padding-top:40px;padding-bottom:80px;max-width:680px">
+    <h1 class="section-title" style="margin-bottom:32px">My <span class="text-gradient">Account</span></h1>
+
+    <!-- PROFILE CARD -->
+    <div class="checkout-section" style="margin-bottom:20px" id="profile-card">
+      <div class="spinner" style="margin:20px auto;display:block"></div>
+    </div>
+
+    <!-- QUICK LINKS -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+      <a href="/pages/orders.html" class="glass-card" style="padding:20px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all var(--dur-mid) var(--ease-spring)"
+        onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform=''">
+        <span style="font-size:28px">📦</span>
+        <div><div style="font-family:var(--font-display);font-weight:700">My Orders</div><div style="font-size:13px;color:var(--text-muted)">Track purchases</div></div>
+      </a>
+      <a href="/pages/wishlist.html" class="glass-card" style="padding:20px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all var(--dur-mid) var(--ease-spring)"
+        onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform=''">
+        <span style="font-size:28px">♡</span>
+        <div><div style="font-family:var(--font-display);font-weight:700">Wishlist</div><div style="font-size:13px;color:var(--text-muted)">Saved items</div></div>
+      </a>
+      <a href="/pages/messages.html" class="glass-card" style="padding:20px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all var(--dur-mid) var(--ease-spring)"
+        onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform=''">
+        <span style="font-size:28px">✉️</span>
+        <div><div style="font-family:var(--font-display);font-weight:700">Messages</div><div style="font-size:13px;color:var(--text-muted)">From the Lobby team</div></div>
+      </a>
+      <div class="glass-card" id="admin-link" style="display:none;padding:20px;align-items:center;gap:12px;cursor:pointer;transition:all var(--dur-mid) var(--ease-spring)"
+        onclick="location.href='/pages/admin.html'"
+        onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform=''">
+        <span style="font-size:28px">⚙️</span>
+        <div><div style="font-family:var(--font-display);font-weight:700">Admin</div><div style="font-size:13px;color:var(--text-muted)">Dashboard</div></div>
+      </div>
+    </div>
+
+    <!-- EDIT PROFILE FORM -->
+    <div class="checkout-section" id="edit-profile" style="display:none">
+      <div class="checkout-section__title"><div class="checkout-section__number">✎</div>Edit Profile</div>
+      <div class="auth-form" style="gap:16px">
+        <div class="form-group">
+          <label class="form-label">Display Name</label>
+          <input class="form-input" type="text" id="full-name-input" placeholder="Your name" />
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn--primary" onclick="saveProfile()">Save Changes</button>
+          <button class="btn btn--ghost" onclick="document.getElementById('edit-profile').style.display='none'">Cancel</button>
+        </div>
+        <div id="profile-save-msg" style="font-size:13px;display:none"></div>
+      </div>
+    </div>
+
+    <!-- SIGN OUT -->
+    <button class="btn btn--danger btn--full" style="margin-top:20px" onclick="signOut()">Sign Out</button>
+  </div>
+</main>
+<nav class="bottom-nav">
+  <a href="/" class="bottom-nav__item"><span class="icon">🏠</span><span class="bottom-nav__label">Home</span></a>
+  <a href="/pages/search.html" class="bottom-nav__item"><span class="icon">🔍</span><span class="bottom-nav__label">Shop</span></a>
+  <a href="/pages/wishlist.html" class="bottom-nav__item"><span class="icon">♡</span><span class="bottom-nav__label">Saved</span></a>
+  <a href="/pages/cart.html" class="bottom-nav__item" style="position:relative"><span class="icon">🛒</span><span class="cart-badge" style="display:none">0</span><span class="bottom-nav__label">Cart</span></a>
+  <a href="/pages/profile.html" class="bottom-nav__item active"><span class="icon">👤</span><span class="bottom-nav__label">Account</span></a>
+</nav>
+<script type="module">
+  import { initTheme, toggleTheme, updateCartBadge, toast, formatDate } from '/js/utils/helpers.js';
+  import { supabase } from '/js/supabase.js';
+  import { ProfileService } from '/js/services/misc.js';
+
+  initTheme();
+  document.getElementById('theme-toggle').textContent = (localStorage.getItem('lobby-theme')||'dark') === 'dark' ? '🌙' : '☀️';
+  window.handleThemeToggle = () => { const n = toggleTheme(); document.getElementById('theme-toggle').textContent = n === 'dark' ? '🌙' : '☀️'; };
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) location.href = `/pages/login.html?redirect=${encodeURIComponent(location.href)}`;
+
+  const authBtn = document.getElementById('auth-btn');
+  if (authBtn) { authBtn.textContent = '👤'; authBtn.onclick = () => location.href = '/pages/profile.html'; }
+  updateCartBadge();
+
+  let profile = null;
+  try {
+    profile = await ProfileService.getProfile();
+    document.getElementById('profile-card').innerHTML = `
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <div style="width:72px;height:72px;border-radius:50%;background:var(--violet-dim);border:2px solid var(--violet);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0">
+          ${profile.avatar_url ? `<img src="${profile.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" />` : '👤'}
+        </div>
+        <div style="flex:1">
+          <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:800">${profile.full_name || profile.username}</div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--violet);margin-top:2px">@${profile.username}</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:4px">${profile.email}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Member since ${formatDate(profile.created_at)}</div>
+        </div>
+        <button class="btn btn--outline btn--sm" onclick="showEditForm()">Edit Profile</button>
+      </div>
+      ${profile.is_admin ? '<div style="margin-top:16px;padding:10px 14px;background:var(--violet-dim);border:1px solid rgba(123,47,255,.3);border-radius:var(--radius-md);font-size:13px;color:var(--violet);font-weight:600">⚙️ Admin Account</div>' : ''}
+    `;
+
+    if (profile.is_admin) {
+      const al = document.getElementById('admin-link');
+      if (al) al.style.display = 'flex';
+    }
+  } catch(e) {
+    document.getElementById('profile-card').innerHTML = `<p style="color:var(--danger)">${e.message}</p>`;
+  }
+
+  window.showEditForm = () => {
+    document.getElementById('edit-profile').style.display = 'block';
+    document.getElementById('full-name-input').value = profile?.full_name || '';
+  };
+
+  window.saveProfile = async () => {
+    const fullName = document.getElementById('full-name-input').value.trim();
+    const msgEl    = document.getElementById('profile-save-msg');
+    try {
+      await ProfileService.updateProfile({ full_name: fullName });
+      msgEl.textContent   = '✓ Profile updated!';
+      msgEl.style.color   = 'var(--success)';
+      msgEl.style.display = 'block';
+      toast('Profile updated', 'success');
+      setTimeout(() => location.reload(), 1200);
+    } catch(e) {
+      msgEl.textContent   = e.message;
+      msgEl.style.color   = 'var(--danger)';
+      msgEl.style.display = 'block';
+    }
+  };
+
+  window.signOut = async () => {
+    await supabase.auth.signOut();
+    location.href = '/';
+  };
+</script>
+</body>
+</html>

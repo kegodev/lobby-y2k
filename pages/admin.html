@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — Lobby Y2K</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <script src="/js/env.js"></script>
+  <style>
+    .chart-bar-wrap { display:flex; align-items:flex-end; gap:6px; height:120px; padding-top:10px; }
+    .chart-bar-col  { flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; height:100%; }
+    .chart-bar      { width:100%; border-radius:6px 6px 0 0; background:var(--violet); min-height:4px; transition:height .4s var(--ease-spring); }
+    .chart-bar-lbl  { font-size:10px; color:var(--text-muted); font-family:var(--font-mono); }
+  </style>
+</head>
+<body>
+
+<nav class="nav" id="main-nav" style="z-index:1001">
+  <a href="/" class="nav__logo"><img src="https://res.cloudinary.com/duw82qno0/image/upload/v1782674045/C705ADF3-47CC-4FC6-A026-73B3F2F27355_ycltrb.png" alt="Lobby Y2K" /></a>
+  <div style="font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--violet)">Admin Panel</div>
+  <div class="nav__actions">
+    <a href="/" class="btn btn--ghost btn--sm">← Store</a>
+    <button class="nav__icon-btn" id="theme-toggle" onclick="handleThemeToggle()">🌙</button>
+    <button class="nav__icon-btn" onclick="signOut()">🚪</button>
+  </div>
+</nav>
+
+<div class="admin-layout">
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__section">Overview</div>
+    <a href="#" class="admin-nav-item active" onclick="showSection('overview',this)"><span class="icon">📊</span>Dashboard</a>
+    <a href="#" class="admin-nav-item" onclick="showSection('analytics',this)"><span class="icon">📈</span>Analytics</a>
+
+    <div class="admin-sidebar__section">Commerce</div>
+    <a href="#" class="admin-nav-item" onclick="showSection('orders',this)"><span class="icon">📦</span>Orders</a>
+    <a href="#" class="admin-nav-item" onclick="showSection('products',this)"><span class="icon">👟</span>Products</a>
+    <a href="#" class="admin-nav-item" onclick="showSection('inventory',this)"><span class="icon">📋</span>Inventory</a>
+
+    <div class="admin-sidebar__section">People</div>
+    <a href="#" class="admin-nav-item" onclick="showSection('customers',this)"><span class="icon">👥</span>Customers</a>
+    <a href="#" class="admin-nav-item" onclick="showSection('messages',this)"><span class="icon">✉️</span>Messages</a>
+
+    <div class="admin-sidebar__section">Settings</div>
+    <a href="#" class="admin-nav-item" onclick="showSection('coupons',this)"><span class="icon">🏷️</span>Coupons</a>
+    <a href="/pages/profile.html" class="admin-nav-item"><span class="icon">👤</span>My Profile</a>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="admin-content" id="admin-content">
+
+    <!-- ══ OVERVIEW ══ -->
+    <section id="section-overview">
+      <h2 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;margin-bottom:24px">
+        Good day 👋 <span id="admin-name" class="text-gradient"></span>
+      </h2>
+
+      <div class="stat-grid" id="stat-grid">
+        <div class="skeleton" style="height:120px;border-radius:var(--radius-lg)"></div>
+        <div class="skeleton" style="height:120px;border-radius:var(--radius-lg)"></div>
+        <div class="skeleton" style="height:120px;border-radius:var(--radius-lg)"></div>
+        <div class="skeleton" style="height:120px;border-radius:var(--radius-lg)"></div>
+      </div>
+
+      <!-- ORDER STATUS BREAKDOWN -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px" id="overview-charts">
+        <div class="glass-card" style="padding:24px">
+          <div style="font-family:var(--font-display);font-weight:700;margin-bottom:16px">Orders by Status</div>
+          <div id="status-breakdown" style="display:flex;flex-direction:column;gap:10px"></div>
+        </div>
+        <div class="glass-card" style="padding:24px">
+          <div style="font-family:var(--font-display);font-weight:700;margin-bottom:16px">Recent Activity</div>
+          <div id="recent-orders-mini" style="display:flex;flex-direction:column;gap:10px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ ANALYTICS ══ -->
+    <section id="section-analytics" style="display:none">
+      <h2 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;margin-bottom:24px">Analytics</h2>
+      <div class="glass-card" style="padding:28px;margin-bottom:20px">
+        <div style="font-family:var(--font-display);font-weight:700;margin-bottom:20px">Revenue by Status</div>
+        <div class="chart-bar-wrap" id="revenue-chart"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="glass-card" style="padding:24px">
+          <div style="font-family:var(--font-display);font-weight:700;margin-bottom:16px">Top Brands</div>
+          <div id="top-brands" style="display:flex;flex-direction:column;gap:10px"></div>
+        </div>
+        <div class="glass-card" style="padding:24px">
+          <div style="font-family:var(--font-display);font-weight:700;margin-bottom:16px">Order Stats</div>
+          <div id="order-stats" style="display:flex;flex-direction:column;gap:10px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ ORDERS ══ -->
+    <section id="section-orders" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <h2 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800">Orders</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select class="sort-select" id="order-status-filter" onchange="loadOrders()">
+            <option value="">All Status</option>
+            <option value="placed">Placed</option>
+            <option value="paid">Paid</option>
+            <option value="fulfilled">Fulfilled</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="refunded">Refunded</option>
+          </select>
+        </div>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="orders-table">
+          <thead><tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Items</th><th>Subtotal</th><th>Shipping</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="orders-tbody"><tr><td colspan="9" style="text-align:center;padding:40px"><div class="spinner" style="margin:0 auto"></div></td></tr></tbody>
+        </table>
+      </div>
+      <div style="text-align:center;margin-top:16px" id="orders-pagination"></div>
+    </section>
+
+    <!-- ══ PRODUCTS ══ -->
+    <section id="section-products" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <h2 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800">Products</h2>
+        <button class="btn btn--primary btn--sm" onclick="openProductModal()">+ Add Product</button>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Image</th><th>Name</th><th>Brand</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="products-tbody"><tr><td colspan="6" style="text-align:center;padding:40px"><div class="spinner" style="margin:0 auto"></div></td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══ INVENTORY ══ -->
+    <section id="section-inventory" style="display:none">
+      <h2 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;margin-bottom:24px">Inventory Alerts</h2>
+      <div id="inventory-list" style="display:flex;flex-direction:column;gap:12px">
+        <div class="spinner" style="margin:60px auto;display:block"></div>
+      </div>
+    </section>
+
+    <!-- ══ CUSTOMERS ══ -->
+    <section id="section-customers" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <h2 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800">Customers</h2>
+        <div class="search-bar" style="max-width:280px">
+          <span class="search-bar__icon" style="font-size:16px">🔍</span>
+          <input class="search-bar__input" style="padding:10px 16px 10px 42px;font-size:14px" type="text" id="customer-search" placeholder="Search…" oninput="searchCustomers()" />
+        </div>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Username</th><th>Email</th><th>Joined</th><th>Actions</th></tr></thead>
+          <tbody id="customers-tbody"><tr><td colspan="4" style="text-align:center;padding:40px"><div class="spinner" style="margin:0 auto"></div></td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══ MESSAGES ══ -->
+    <section id="section-messages" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <h2 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800">Messages</h2>
+        <button class="btn btn--primary btn--sm" onclick="openSendMessageModal()">+ Send Message</button>
+      </div>
+      <div id="admin-messages-list" style="display:flex;flex-direction:column;gap:12px">
+        <div class="spinner" style="margin:60px auto;display:block"></div>
+      </div>
+    </section>
+
+    <!-- ══ COUPONS ══ -->
+    <section id="section-coupons" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+        <h2 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800">Coupons</h2>
+        <button class="btn btn--primary btn--sm" onclick="openCouponModal()">+ Create Coupon</button>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Uses</th><th>Expires</th><th>Active</th><th>Actions</th></tr></thead>
+          <tbody id="coupons-tbody"><tr><td colspan="7" style="text-align:center;padding:40px"><div class="spinner" style="margin:0 auto"></div></td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ══ ORDER DETAIL MODAL ══ -->
+<div class="modal-overlay" id="order-modal">
+  <div class="modal" style="max-width:620px">
+    <div class="modal__header">
+      <h3 class="modal__title">Order Details</h3>
+      <button class="modal__close" onclick="closeModal('order-modal')">✕</button>
+    </div>
+    <div id="order-modal-body"></div>
+  </div>
+</div>
+
+<!-- ══ PRODUCT MODAL ══ -->
+<div class="modal-overlay" id="product-modal">
+  <div class="modal" style="max-width:580px">
+    <div class="modal__header">
+      <h3 class="modal__title" id="product-modal-title">Add Product</h3>
+      <button class="modal__close" onclick="closeModal('product-modal')">✕</button>
+    </div>
+    <div class="auth-form" style="gap:16px" id="product-form">
+      <div class="address-grid">
+        <div class="form-group" style="grid-column:1/-1"><label class="form-label">Name</label><input class="form-input" type="text" id="p-name" placeholder="Nike Air Max 90" /></div>
+        <div class="form-group"><label class="form-label">Brand</label>
+          <select class="form-input" id="p-brand">
+            <option>Nike</option><option>Jordan</option><option>Adidas</option><option>Puma</option><option>New Balance</option><option>Converse</option><option>Vans</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Category</label><input class="form-input" type="text" id="p-category" placeholder="Low Top" /></div>
+        <div class="form-group"><label class="form-label">Base Price (R)</label><input class="form-input" type="number" id="p-price" placeholder="1299.00" step="0.01" /></div>
+        <div class="form-group"><label class="form-label">Sale Price (R)</label><input class="form-input" type="number" id="p-sale-price" placeholder="Optional" step="0.01" /></div>
+        <div class="form-group" style="grid-column:1/-1"><label class="form-label">Description</label><textarea class="form-input" id="p-desc" rows="3" style="resize:vertical"></textarea></div>
+        <div class="form-group"><label class="form-label">Image URL</label><input class="form-input" type="url" id="p-img-url" placeholder="https://…" /></div>
+        <div class="form-group" style="align-self:flex-end">
+          <label class="checkbox-group"><input type="checkbox" id="p-featured" /> Featured</label>
+        </div>
+      </div>
+      <button class="btn btn--primary" id="product-save-btn" onclick="saveProduct()">Save Product</button>
+      <div id="product-save-msg" style="display:none;font-size:13px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SEND MESSAGE MODAL ══ -->
+<div class="modal-overlay" id="send-msg-modal">
+  <div class="modal">
+    <div class="modal__header">
+      <h3 class="modal__title">Send Message</h3>
+      <button class="modal__close" onclick="closeModal('send-msg-modal')">✕</button>
+    </div>
+    <div class="auth-form" style="gap:16px">
+      <div class="form-group">
+        <label class="form-label">Customer</label>
+        <select class="form-input" id="msg-user-id">
+          <option value="">Select customer…</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Order (optional)</label>
+        <select class="form-input" id="msg-order-id">
+          <option value="">No linked order</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subject</label>
+        <input class="form-input" type="text" id="msg-subject" placeholder="Shipping Update for your order" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message</label>
+        <textarea class="form-input" id="msg-body" rows="5" placeholder="Hi [name], your order has been shipped…" style="resize:vertical"></textarea>
+      </div>
+      <button class="btn btn--primary" onclick="sendMessage()">Send Message</button>
+      <div id="msg-send-result" style="display:none;font-size:13px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ COUPON MODAL ══ -->
+<div class="modal-overlay" id="coupon-modal">
+  <div class="modal">
+    <div class="modal__header">
+      <h3 class="modal__title">Create Coupon</h3>
+      <button class="modal__close" onclick="closeModal('coupon-modal')">✕</button>
+    </div>
+    <div class="auth-form" style="gap:16px">
+      <div class="form-group"><label class="form-label">Code</label><input class="form-input" type="text" id="c-code" placeholder="LOBBY20" style="text-transform:uppercase" /></div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-input" id="c-type"><option value="percent">Percentage (%)</option><option value="fixed">Fixed (R)</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Value</label><input class="form-input" type="number" id="c-value" placeholder="20" step="0.01" /></div>
+      <div class="form-group"><label class="form-label">Min Order (R)</label><input class="form-input" type="number" id="c-min" placeholder="0" step="0.01" /></div>
+      <div class="form-group"><label class="form-label">Max Uses</label><input class="form-input" type="number" id="c-max-uses" placeholder="Unlimited" /></div>
+      <div class="form-group"><label class="form-label">Expires At</label><input class="form-input" type="datetime-local" id="c-expires" /></div>
+      <button class="btn btn--primary" onclick="saveCoupon()">Create Coupon</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHIPPING MODAL ══ -->
+<div class="modal-overlay" id="shipping-modal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal__header">
+      <h3 class="modal__title">Set Shipping Cost</h3>
+      <button class="modal__close" onclick="closeModal('shipping-modal')">✕</button>
+    </div>
+    <p style="font-size:14px;color:var(--text-secondary);margin-bottom:20px">Set the shipping cost for order <strong id="ship-order-id"></strong>.</p>
+    <div class="form-group" style="margin-bottom:20px">
+      <label class="form-label">Shipping Cost (R)</label>
+      <input class="form-input" type="number" id="ship-cost-input" placeholder="99.00" step="0.01" />
+    </div>
+    <button class="btn btn--primary btn--full" onclick="saveShipping()">Update Shipping</button>
+    <div id="ship-result" style="display:none;font-size:13px;margin-top:12px"></div>
+  </div>
+</div>
+
+<script type="module">
+  import { initTheme, toggleTheme, formatPrice, statusBadgeHTML, formatDate, timeAgo, toast, debounce } from '/js/utils/helpers.js';
+  import { supabase } from '/js/supabase.js';
+  import { OrdersService } from '/js/services/orders.js';
+  import ProductsService from '/js/services/products.js';
+  import { MessagesService, ProfileService } from '/js/services/misc.js';
+
+  initTheme();
+  document.getElementById('theme-toggle').textContent = (localStorage.getItem('lobby-theme')||'dark') === 'dark' ? '🌙' : '☀️';
+  window.handleThemeToggle = () => { const n = toggleTheme(); document.getElementById('theme-toggle').textContent = n === 'dark' ? '🌙' : '☀️'; };
+
+  // ── Admin Guard ──────────────────────────────────────────
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) { location.href = '/pages/login.html'; }
+
+  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+  if (!profile?.is_admin) {
+    document.body.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:center;height:100dvh;flex-direction:column;gap:20px;font-family:var(--font-display)">
+        <div style="font-size:64px">🚫</div>
+        <h2>Access Denied</h2>
+        <p style="color:var(--text-muted)">You don't have admin privileges.</p>
+        <button class="btn btn--primary" onclick="location.href='/'">Go Home</button>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('admin-name').textContent = profile.username;
+  window.signOut = async () => { await supabase.auth.signOut(); location.href = '/'; };
+
+  // ── Section navigation ───────────────────────────────────
+  let currentSection = 'overview';
+  window.showSection = (name, el) => {
+    document.querySelectorAll('[id^="section-"]').forEach(s => s.style.display = 'none');
+    document.getElementById(`section-${name}`).style.display = 'block';
+    document.querySelectorAll('.admin-nav-item').forEach(i => i.classList.remove('active'));
+    el?.classList.add('active');
+    currentSection = name;
+    sectionLoaders[name]?.();
+  };
+
+  const sectionLoaders = {
+    overview:   loadOverview,
+    analytics:  loadAnalytics,
+    orders:     loadOrders,
+    products:   loadProducts,
+    inventory:  loadInventory,
+    customers:  loadCustomers,
+    messages:   loadAdminMessages,
+    coupons:    loadCoupons,
+  };
+
+  // ── OVERVIEW ─────────────────────────────────────────────
+  async function loadOverview() {
+    try {
+      const stats = await OrdersService.getStats();
+      document.getElementById('stat-grid').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-card__icon">💰</div>
+          <div class="stat-card__value">${formatPrice(stats.totalRevenue)}</div>
+          <div class="stat-card__label">Total Revenue (Paid)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__icon">📦</div>
+          <div class="stat-card__value">${stats.totalOrders.toLocaleString()}</div>
+          <div class="stat-card__label">Total Orders</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__icon">👥</div>
+          <div class="stat-card__value">${stats.totalCustomers.toLocaleString()}</div>
+          <div class="stat-card__label">Customers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__icon">👟</div>
+          <div class="stat-card__value">${stats.totalProducts.toLocaleString()}</div>
+          <div class="stat-card__label">Active Products</div>
+        </div>
+      `;
+
+      // Status breakdown
+      const statusColors = { placed:'#f59e0b', paid:'#10b981', fulfilled:'#6366f1', cancelled:'#ef4444', refunded:'#8b5cf6' };
+      const total = Object.values(stats.ordersByStatus).reduce((a,b)=>a+b,0) || 1;
+      document.getElementById('status-breakdown').innerHTML = Object.entries(stats.ordersByStatus).map(([status, count]) => `
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+              <span style="text-transform:capitalize;font-weight:600">${status}</span>
+              <span style="color:var(--text-muted)">${count}</span>
+            </div>
+            <div style="height:6px;background:var(--surface-3);border-radius:999px;overflow:hidden">
+              <div style="height:100%;width:${Math.round(count/total*100)}%;background:${statusColors[status]||'var(--violet)'};border-radius:999px;transition:width .6s var(--ease-smooth)"></div>
+            </div>
+          </div>
+        </div>
+      `).join('') || '<p style="color:var(--text-muted);font-size:13px">No orders yet</p>';
+
+      // Recent orders
+      const { orders } = await OrdersService.getAllOrders({ limit: 5 });
+      document.getElementById('recent-orders-mini').innerHTML = orders.map(o => `
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border)">
+          <div>
+            <span style="font-family:var(--font-mono);color:var(--text-muted)">#${o.id.slice(0,8).toUpperCase()}</span>
+            <span style="color:var(--text-secondary);margin-left:8px">${o.profiles?.username || '—'}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            ${statusBadgeHTML(o.status)}
+            <span style="font-weight:700">${formatPrice(o.total)}</span>
+          </div>
+        </div>
+      `).join('') || '<p style="color:var(--text-muted);font-size:13px">No orders yet</p>';
+    } catch(e) {
+      document.getElementById('stat-grid').innerHTML = `<p style="color:var(--danger)">${e.message}</p>`;
+    }
+  }
+
+  // ── ANALYTICS ────────────────────────────────────────────
+  async function loadAnalytics() {
+    try {
+      const stats = await OrdersService.getStats();
+
+      // Revenue chart (per status)
+      const statusData = Object.entries(stats.ordersByStatus);
+      const maxVal = Math.max(...statusData.map(([,v])=>v), 1);
+      document.getElementById('revenue-chart').innerHTML = statusData.map(([status, count]) => `
+        <div class="chart-bar-col">
+          <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono)">${count}</div>
+          <div class="chart-bar" style="height:${Math.max(Math.round(count/maxVal*100),4)}%;opacity:${status==='paid'?1:0.5}"></div>
+          <div class="chart-bar-lbl">${status.slice(0,5)}</div>
+        </div>
+      `).join('') || '<p style="color:var(--text-muted)">No data</p>';
+
+      // Top brands
+      const { data: brandData } = await supabase.from('products').select('brand').eq('is_active', true);
+      const brandCounts = {};
+      brandData?.forEach(p => { brandCounts[p.brand] = (brandCounts[p.brand]||0)+1; });
+      const sorted = Object.entries(brandCounts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+      document.getElementById('top-brands').innerHTML = sorted.map(([brand, count]) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
+          <span style="font-weight:600">${brand}</span>
+          <span style="color:var(--text-muted)">${count} products</span>
+        </div>
+      `).join('');
+
+      document.getElementById('order-stats').innerHTML = `
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span>Total Orders</span><span style="font-weight:700">${stats.totalOrders}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span>Paid Revenue</span><span style="font-weight:700">${formatPrice(stats.totalRevenue)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span>Customers</span><span style="font-weight:700">${stats.totalCustomers}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span>Active Products</span><span style="font-weight:700">${stats.totalProducts}</span></div>
+      `;
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
+  // ── ORDERS ───────────────────────────────────────────────
+  let ordersPage = 1;
+  window.loadOrders = async function(page = 1) {
+    ordersPage = page;
+    const status = document.getElementById('order-status-filter')?.value;
+    const tbody  = document.getElementById('orders-tbody');
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px"><div class="spinner" style="margin:0 auto"></div></td></tr>`;
+    try {
+      const { orders, total } = await OrdersService.getAllOrders({ page, limit: 20, status: status || undefined });
+      if (!orders.length) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">No orders found</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = orders.map(o => `
+        <tr>
+          <td style="font-family:var(--font-mono);font-size:12px">#${o.id.slice(0,8).toUpperCase()}</td>
+          <td>${o.profiles?.username || '—'}<br/><span style="font-size:11px;color:var(--text-muted)">${o.profiles?.email||''}</span></td>
+          <td style="font-size:12px">${formatDate(o.created_at)}</td>
+          <td>${o.order_items?.length || '—'}</td>
+          <td>${formatPrice(o.subtotal)}</td>
+          <td>
+            ${o.shipping > 0 ? formatPrice(o.shipping) : `<span style="color:var(--text-muted);font-style:italic;font-size:12px">Not set</span>`}
+            <button class="btn btn--ghost btn--sm" style="font-size:11px;padding:4px 8px;margin-left:6px" onclick="openShippingModal('${o.id}','${o.shipping||0}')">Set</button>
+          </td>
+          <td style="font-weight:700">${formatPrice(o.total)}</td>
+          <td>${statusBadgeHTML(o.status)}</td>
+          <td>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="btn btn--ghost btn--sm" style="font-size:11px" onclick="viewOrder('${o.id}')">View</button>
+              <select class="sort-select" style="font-size:11px;padding:4px 24px 4px 8px" onchange="updateStatus('${o.id}',this.value,this)">
+                <option value="">Change…</option>
+                <option value="placed">Placed</option><option value="paid">Paid</option>
+                <option value="fulfilled">Fulfilled</option><option value="cancelled">Cancelled</option><option value="refunded">Refunded</option>
+              </select>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      // Pagination
+      const pages = document.getElementById('orders-pagination');
+      const totalPages = Math.ceil(total / 20);
+      pages.innerHTML = Array.from({length: Math.min(totalPages, 8)}, (_,i) => `
+        <button class="page-btn ${i+1===page?'active':''}" onclick="loadOrders(${i+1})">${i+1}</button>
+      `).join('');
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="9" style="color:var(--danger);text-align:center;padding:20px">${e.message}</td></tr>`;
+    }
+  };
+
+  window.updateStatus = async (orderId, status, select) => {
+    if (!status) return;
+    try {
+      await OrdersService.updateOrderStatus(orderId, status);
+      toast(`Order status updated to ${status}`, 'success');
+      loadOrders(ordersPage);
+    } catch(e) {
+      toast(e.message, 'error');
+      select.value = '';
+    }
+  };
+
+  window.viewOrder = async (orderId) => {
+    const modal = document.getElementById('order-modal');
+    const body  = document.getElementById('order-modal-body');
+    body.innerHTML = `<div class="spinner" style="margin:30px auto;display:block"></div>`;
+    modal.classList.add('open');
+    try {
+      const { data: order } = await supabase.from('orders').select(`*,profiles:user_id(*),order_items(*,products:product_id(name,brand))`).eq('id',orderId).single();
+      body.innerHTML = `
+        <div style="display:flex;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+          <div>
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">ORDER ID</div>
+            <div style="font-family:var(--font-mono);font-weight:700">#${order.id.slice(0,8).toUpperCase()}</div>
+          </div>
+          <div>${statusBadgeHTML(order.status)}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Customer</div>
+            <div style="font-size:14px">@${order.profiles?.username||'—'}</div>
+            <div style="font-size:13px;color:var(--text-muted)">${order.profiles?.email||''}</div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Shipping to</div>
+            <div style="font-size:13px;color:var(--text-secondary);line-height:1.7">
+              ${order.shipping_address?.full_name || ''}<br/>
+              ${order.shipping_address?.line1 || ''}<br/>
+              ${order.shipping_address?.city || ''}, ${order.shipping_address?.postal_code || ''}<br/>
+              ${order.shipping_address?.country || ''}
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:16px">
+          <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Items</div>
+          ${order.order_items?.map(item=>`
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border)">
+              <span>${item.products?.name||item.product_name} × ${item.quantity}</span>
+              <span style="font-weight:600">${formatPrice(item.price*item.quantity)}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:16px">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span>Subtotal</span><span>${formatPrice(order.subtotal)}</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span>Shipping</span><span>${order.shipping > 0 ? formatPrice(order.shipping) : 'TBC'}</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:800;padding-top:10px;border-top:1px solid var(--border)"><span>Total</span><span>${formatPrice(order.total)}</span></div>
+        </div>
+        ${order.notes ? `<div style="margin-top:16px;padding:12px;background:var(--surface-2);border-radius:var(--radius-md);font-size:13px"><strong>Notes:</strong> ${order.notes}</div>` : ''}
+      `;
+    } catch(e) {
+      body.innerHTML = `<p style="color:var(--danger)">${e.message}</p>`;
+    }
+  };
+
+  // ── SHIPPING MODAL ───────────────────────────────────────
+  let currentShipOrderId = null;
+  window.openShippingModal = (orderId, currentShipping) => {
+    currentShipOrderId = orderId;
+    document.getElementById('ship-order-id').textContent = '#' + orderId.slice(0,8).toUpperCase();
+    document.getElementById('ship-cost-input').value = parseFloat(currentShipping) || '';
+    document.getElementById('ship-result').style.display = 'none';
+    document.getElementById('shipping-modal').classList.add('open');
+  };
+  window.saveShipping = async () => {
+    const cost    = parseFloat(document.getElementById('ship-cost-input').value);
+    const resultEl = document.getElementById('ship-result');
+    if (isNaN(cost) || cost < 0) { toast('Enter a valid amount', 'warning'); return; }
+    try {
+      await OrdersService.updateShipping(currentShipOrderId, cost);
+      toast('Shipping updated!', 'success');
+      closeModal('shipping-modal');
+      loadOrders(ordersPage);
+    } catch(e) {
+      resultEl.textContent   = e.message;
+      resultEl.style.color   = 'var(--danger)';
+      resultEl.style.display = 'block';
+    }
+  };
+
+  // ── PRODUCTS ─────────────────────────────────────────────
+  async function loadProducts() {
+    const tbody = document.getElementById('products-tbody');
+    try {
+      const { products } = await ProductsService.getAllProductsAdmin({ limit: 50 });
+      tbody.innerHTML = products.map(p => {
+        const img = p.product_images?.find(i=>i.is_primary)?.url || p.product_images?.[0]?.url || '';
+        return `
+          <tr>
+            <td><div style="width:48px;height:48px;border-radius:var(--radius-sm);background:var(--surface-2);overflow:hidden">
+              ${img ? `<img src="${img}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'" />` : ''}
+            </div></td>
+            <td style="font-weight:600">${p.name}</td>
+            <td><span style="font-family:var(--font-mono);font-size:12px;color:var(--violet)">${p.brand}</span></td>
+            <td>${formatPrice(p.base_price)}${p.sale_price ? `<br/><span style="font-size:11px;color:var(--pink)">${formatPrice(p.sale_price)}</span>` : ''}</td>
+            <td><span style="font-size:12px;color:${p.is_active?'var(--success)':'var(--danger)'}">${p.is_active?'● Active':'○ Hidden'}</span></td>
+            <td>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn--ghost btn--sm" style="font-size:11px" onclick="editProduct('${p.id}')">Edit</button>
+                <button class="btn btn--ghost btn--sm" style="font-size:11px;color:${p.is_active?'var(--danger)':'var(--success)'}" onclick="toggleProduct('${p.id}',${!p.is_active})">${p.is_active?'Hide':'Show'}</button>
+              </div>
+            </td>
+          </tr>`;
+      }).join('') || `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">No products</td></tr>`;
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="6" style="color:var(--danger)">${e.message}</td></tr>`;
+    }
+  }
+
+  let editingProductId = null;
+  window.openProductModal = () => {
+    editingProductId = null;
+    document.getElementById('product-modal-title').textContent = 'Add Product';
+    ['p-name','p-category','p-desc','p-img-url'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('p-price').value = '';
+    document.getElementById('p-sale-price').value = '';
+    document.getElementById('p-featured').checked = false;
+    document.getElementById('product-save-msg').style.display = 'none';
+    document.getElementById('product-modal').classList.add('open');
+  };
+
+  window.editProduct = async (id) => {
+    editingProductId = id;
+    const { data: p } = await supabase.from('products').select('*').eq('id', id).single();
+    document.getElementById('product-modal-title').textContent = 'Edit Product';
+    document.getElementById('p-name').value      = p.name || '';
+    document.getElementById('p-brand').value     = p.brand || 'Nike';
+    document.getElementById('p-category').value  = p.category || '';
+    document.getElementById('p-price').value     = p.base_price || '';
+    document.getElementById('p-sale-price').value= p.sale_price || '';
+    document.getElementById('p-desc').value      = p.description || '';
+    document.getElementById('p-featured').checked= p.is_featured || false;
+    document.getElementById('product-modal').classList.add('open');
+  };
+
+  window.saveProduct = async () => {
+    const btn = document.getElementById('product-save-btn');
+    const msg = document.getElementById('product-save-msg');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+    const data = {
+      name:        document.getElementById('p-name').value.trim(),
+      brand:       document.getElementById('p-brand').value,
+      category:    document.getElementById('p-category').value.trim(),
+      base_price:  parseFloat(document.getElementById('p-price').value),
+      sale_price:  parseFloat(document.getElementById('p-sale-price').value) || null,
+      description: document.getElementById('p-desc').value.trim(),
+      is_featured: document.getElementById('p-featured').checked,
+      is_active:   true,
+      updated_at:  new Date().toISOString(),
+    };
+    const imgUrl = document.getElementById('p-img-url').value.trim();
+    try {
+      let prod;
+      if (editingProductId) {
+        prod = await ProductsService.updateProduct(editingProductId, data);
+      } else {
+        prod = await ProductsService.createProduct(data);
+      }
+      // Add image if provided
+      if (imgUrl && prod) {
+        await supabase.from('product_images').upsert({ product_id: prod.id, url: imgUrl, is_primary: true, position: 0 });
+      }
+      toast(editingProductId ? 'Product updated' : 'Product created', 'success');
+      closeModal('product-modal');
+      loadProducts();
+    } catch(e) {
+      msg.textContent   = e.message;
+      msg.style.color   = 'var(--danger)';
+      msg.style.display = 'block';
+    }
+    btn.disabled = false; btn.innerHTML = 'Save Product';
+  };
+
+  window.toggleProduct = async (id, active) => {
+    try {
+      await supabase.from('products').update({ is_active: active }).eq('id', id);
+      toast(active ? 'Product shown' : 'Product hidden', 'success');
+      loadProducts();
+    } catch(e) { toast(e.message,'error'); }
+  };
+
+  // ── INVENTORY ────────────────────────────────────────────
+  async function loadInventory() {
+    const list = document.getElementById('inventory-list');
+    try {
+      const { data: lowStock } = await supabase
+        .from('product_variants').select('*, products:product_id(name,brand)')
+        .lt('stock', 5).order('stock');
+      if (!lowStock?.length) {
+        list.innerHTML = `<div class="empty-state"><div class="empty-state__icon">✅</div><h3 class="empty-state__title">All good!</h3><p class="empty-state__sub">No variants with low stock.</p></div>`;
+        return;
+      }
+      list.innerHTML = lowStock.map(v => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:var(--surface-1);border:1px solid ${v.stock===0?'var(--danger)':'var(--warning)'};border-radius:var(--radius-md)">
+          <div>
+            <div style="font-weight:700;font-size:14px">${v.products?.brand} — ${v.products?.name}</div>
+            <div style="font-size:12px;color:var(--text-muted)">Size UK ${v.size} · ${v.color}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-family:var(--font-mono);font-size:18px;font-weight:800;color:${v.stock===0?'var(--danger)':'var(--warning)'}">${v.stock}</span>
+            <span style="font-size:12px;color:var(--text-muted)">${v.stock===0?'Out of stock':'Low stock'}</span>
+            <div class="form-group" style="margin:0">
+              <input type="number" class="form-input" style="width:80px;padding:8px 12px;font-size:13px" placeholder="New qty" id="stock-${v.id}" />
+            </div>
+            <button class="btn btn--primary btn--sm" style="font-size:12px" onclick="updateStock('${v.id}')">Update</button>
+          </div>
+        </div>
+      `).join('');
+    } catch(e) {
+      list.innerHTML = `<p style="color:var(--danger)">${e.message}</p>`;
+    }
+  }
+
+  window.updateStock = async (variantId) => {
+    const val = parseInt(document.getElementById(`stock-${variantId}`).value);
+    if (isNaN(val) || val < 0) { toast('Enter a valid quantity', 'warning'); return; }
+    try {
+      await supabase.from('product_variants').update({ stock: val }).eq('id', variantId);
+      toast('Stock updated', 'success');
+      loadInventory();
+    } catch(e) { toast(e.message,'error'); }
+  };
+
+  // ── CUSTOMERS ────────────────────────────────────────────
+  async function loadCustomers(search = '') {
+    const tbody = document.getElementById('customers-tbody');
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:40px"><div class="spinner" style="margin:0 auto"></div></td></tr>`;
+    try {
+      const { customers } = await ProfileService.getAllCustomers({ search });
+      tbody.innerHTML = customers.map(c => `
+        <tr>
+          <td><span style="font-family:var(--font-mono);color:var(--violet)">@${c.username}</span></td>
+          <td style="color:var(--text-secondary)">${c.email}</td>
+          <td style="font-size:12px;color:var(--text-muted)">${formatDate(c.created_at)}</td>
+          <td>
+            <button class="btn btn--ghost btn--sm" style="font-size:11px" onclick="openSendMessageModal('${c.id}','${c.username}')">✉️ Message</button>
+          </td>
+        </tr>
+      `).join('') || `<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--text-muted)">No customers found</td></tr>`;
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="4" style="color:var(--danger)">${e.message}</td></tr>`;
+    }
+  }
+
+  window.searchCustomers = debounce(async () => {
+    const q = document.getElementById('customer-search').value.trim();
+    loadCustomers(q);
+  }, 300);
+
+  // ── ADMIN MESSAGES ───────────────────────────────────────
+  async function loadAdminMessages() {
+    const list = document.getElementById('admin-messages-list');
+    try {
+      const messages = await MessagesService.getAllMessages();
+      if (!messages.length) {
+        list.innerHTML = `<div class="empty-state"><div class="empty-state__icon">✉️</div><h3 class="empty-state__title">No messages sent</h3><button class="btn btn--primary" onclick="openSendMessageModal()">Send First Message</button></div>`;
+        return;
+      }
+      list.innerHTML = messages.map(m => `
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:16px 20px;background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius-lg);flex-wrap:wrap">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px">
+              To: @${m.profiles?.username||'—'} · ${timeAgo(m.created_at)}
+              ${m.order_id ? ' · Order #' + m.order_id.slice(0,8).toUpperCase() : ''}
+            </div>
+            <div style="font-weight:700;font-size:14px;margin-bottom:4px">${m.subject}</div>
+            <div style="font-size:13px;color:var(--text-secondary);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${m.body}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+            <span style="font-size:11px;color:${m.is_read?'var(--success)':'var(--violet)'}">
+              ${m.is_read ? '✓ Read' : '● Unread'}
+            </span>
+            <button class="btn btn--ghost btn--sm" style="font-size:11px;color:var(--danger)" onclick="deleteMessage('${m.id}',this)">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    } catch(e) {
+      list.innerHTML = `<p style="color:var(--danger)">${e.message}</p>`;
+    }
+  }
+
+  window.deleteMessage = async (id, btn) => {
+    if (!confirm('Delete this message?')) return;
+    btn.disabled = true;
+    try {
+      await MessagesService.deleteMessage(id);
+      toast('Message deleted', 'info');
+      loadAdminMessages();
+    } catch(e) { toast(e.message,'error'); btn.disabled = false; }
+  };
+
+  // ── SEND MESSAGE MODAL ───────────────────────────────────
+  window.openSendMessageModal = async (userId = '', username = '') => {
+    // Load customers into dropdown
+    const { customers } = await ProfileService.getAllCustomers({ limit: 100 });
+    const userSelect = document.getElementById('msg-user-id');
+    userSelect.innerHTML = `<option value="">Select customer…</option>` +
+      customers.map(c => `<option value="${c.id}" ${c.id===userId?'selected':''}>${c.username} (${c.email})</option>`).join('');
+
+    // Load orders for selected user
+    const orderSelect = document.getElementById('msg-order-id');
+    orderSelect.innerHTML = '<option value="">No linked order</option>';
+    if (userId) {
+      const { orders } = await OrdersService.getAllOrders({ limit: 50 });
+      const userOrders = orders.filter(o => o.user_id === userId || o.profiles?.username === username);
+      orderSelect.innerHTML += userOrders.map(o => `<option value="${o.id}">#${o.id.slice(0,8).toUpperCase()} — ${o.status}</option>`).join('');
+    }
+
+    userSelect.addEventListener('change', async () => {
+      const selectedId = userSelect.value;
+      orderSelect.innerHTML = '<option value="">No linked order</option>';
+      if (selectedId) {
+        const { orders } = await OrdersService.getAllOrders({ limit: 100 });
+        const userOrders = orders.filter(o => o.user_id === selectedId);
+        orderSelect.innerHTML += userOrders.map(o => `<option value="${o.id}">#${o.id.slice(0,8).toUpperCase()} — ${o.status}</option>`).join('');
+      }
+    });
+
+    document.getElementById('msg-subject').value = '';
+    document.getElementById('msg-body').value    = '';
+    document.getElementById('msg-send-result').style.display = 'none';
+    document.getElementById('send-msg-modal').classList.add('open');
+  };
+
+  window.sendMessage = async () => {
+    const userId  = document.getElementById('msg-user-id').value;
+    const orderId = document.getElementById('msg-order-id').value;
+    const subject = document.getElementById('msg-subject').value.trim();
+    const body    = document.getElementById('msg-body').value.trim();
+    const result  = document.getElementById('msg-send-result');
+
+    if (!userId)  { toast('Select a customer', 'warning'); return; }
+    if (!subject) { toast('Enter a subject', 'warning'); return; }
+    if (!body)    { toast('Enter message body', 'warning'); return; }
+
+    try {
+      await MessagesService.sendMessage({ userId, orderId: orderId || null, subject, body });
+      toast('Message sent!', 'success');
+      closeModal('send-msg-modal');
+      if (currentSection === 'messages') loadAdminMessages();
+    } catch(e) {
+      result.textContent   = e.message;
+      result.style.color   = 'var(--danger)';
+      result.style.display = 'block';
+    }
+  };
+
+  // ── COUPONS ──────────────────────────────────────────────
+  async function loadCoupons() {
+    const tbody = document.getElementById('coupons-tbody');
+    try {
+      const { data: coupons } = await supabase.from('coupons').select('*').order('created_at', { ascending: false });
+      tbody.innerHTML = (coupons||[]).map(c => `
+        <tr>
+          <td style="font-family:var(--font-mono);font-weight:700">${c.code}</td>
+          <td style="text-transform:capitalize">${c.discount_type}</td>
+          <td>${c.discount_type==='percent' ? c.discount_value+'%' : formatPrice(c.discount_value)}</td>
+          <td>${c.used_count}${c.max_uses ? ' / '+c.max_uses : ''}</td>
+          <td style="font-size:12px;color:var(--text-muted)">${c.expires_at ? formatDate(c.expires_at) : 'Never'}</td>
+          <td><span style="color:${c.is_active?'var(--success)':'var(--danger)'}">●</span> ${c.is_active?'Active':'Inactive'}</td>
+          <td>
+            <button class="btn btn--ghost btn--sm" style="font-size:11px;color:${c.is_active?'var(--danger)':'var(--success)'}"
+              onclick="toggleCoupon('${c.id}',${!c.is_active})">${c.is_active?'Disable':'Enable'}</button>
+          </td>
+        </tr>
+      `).join('') || `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">No coupons</td></tr>`;
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="7" style="color:var(--danger)">${e.message}</td></tr>`;
+    }
+  }
+
+  window.openCouponModal = () => {
+    ['c-code','c-value','c-min','c-max-uses','c-expires'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('coupon-modal').classList.add('open');
+  };
+
+  window.saveCoupon = async () => {
+    const code = document.getElementById('c-code').value.trim().toUpperCase();
+    if (!code) { toast('Enter a coupon code', 'warning'); return; }
+    try {
+      const { error } = await supabase.from('coupons').insert({
+        code,
+        discount_type:  document.getElementById('c-type').value,
+        discount_value: parseFloat(document.getElementById('c-value').value) || 0,
+        min_order:      parseFloat(document.getElementById('c-min').value)   || 0,
+        max_uses:       parseInt(document.getElementById('c-max-uses').value) || null,
+        expires_at:     document.getElementById('c-expires').value || null,
+        is_active:      true,
+      });
+      if (error) throw error;
+      toast('Coupon created!', 'success');
+      closeModal('coupon-modal');
+      loadCoupons();
+    } catch(e) { toast(e.message,'error'); }
+  };
+
+  window.toggleCoupon = async (id, active) => {
+    await supabase.from('coupons').update({ is_active: active }).eq('id', id);
+    toast(active ? 'Coupon enabled' : 'Coupon disabled', 'success');
+    loadCoupons();
+  };
+
+  // ── MODAL HELPERS ────────────────────────────────────────
+  window.closeModal = (id) => {
+    document.getElementById(id)?.classList.remove('open');
+  };
+
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.classList.remove('open');
+    });
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  });
+
+  // ── Init: load overview ──────────────────────────────────
+  const { debounce: _ } = await import('/js/utils/helpers.js');
+  loadOverview();
+
+  // Re-export debounce for inline use
+  import('/js/utils/helpers.js').then(m => { window.debounce = m.debounce; });
+</script>
+</body>
+</html>

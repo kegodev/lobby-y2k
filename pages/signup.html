@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account — Lobby Y2K</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <script src="/js/env.js"></script>
+</head>
+<body>
+
+<div class="auth-page">
+
+  <div class="auth-page__visual">
+    <div class="auth-page__visual-bg" style="background-image:url('https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=1200')"></div>
+    <div class="auth-page__visual-content">
+      <img src="https://res.cloudinary.com/duw82qno0/image/upload/v1782674045/C705ADF3-47CC-4FC6-A026-73B3F2F27355_ycltrb.png" style="height:48px;object-fit:contain;margin-bottom:32px" alt="Lobby Y2K" />
+      <p class="auth-page__visual-title">Join the<br/>Lobby.</p>
+      <p class="auth-page__visual-sub">Get access to exclusive drops, order tracking, and your personal wishlist.</p>
+    </div>
+  </div>
+
+  <div class="auth-page__form-side">
+
+    <div class="auth-logo">
+      <a href="/"><img src="https://res.cloudinary.com/duw82qno0/image/upload/v1782674045/C705ADF3-47CC-4FC6-A026-73B3F2F27355_ycltrb.png" alt="Lobby Y2K" /></a>
+    </div>
+
+    <h1 class="auth-title">Create account</h1>
+    <p class="auth-subtitle">Join the Lobby — it's free</p>
+
+    <form class="auth-form" id="signup-form" onsubmit="return false">
+
+      <div class="form-group">
+        <label class="form-label" for="username">Username</label>
+        <input class="form-input" type="text" id="username" placeholder="your_handle" autocomplete="username" required maxlength="30" />
+        <span class="form-hint">Lowercase letters, numbers, _ and - only. Permanent after signup.</span>
+        <span class="form-error" id="username-error"></span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">Email</label>
+        <input class="form-input" type="email" id="email" placeholder="you@email.com" autocomplete="email" required />
+        <span class="form-error" id="email-error"></span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div class="input-group">
+          <input class="form-input" type="password" id="password" placeholder="Min. 8 characters" autocomplete="new-password" required minlength="8" />
+          <button type="button" class="input-group__suffix" id="toggle-pw">👁</button>
+        </div>
+        <div class="password-strength"><div class="password-strength__bar" id="pw-bar"></div></div>
+        <span class="form-hint" id="pw-hint">Use 8+ chars with numbers &amp; symbols</span>
+        <span class="form-error" id="password-error"></span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="confirm-password">Confirm Password</label>
+        <input class="form-input" type="password" id="confirm-password" placeholder="Repeat password" autocomplete="new-password" required />
+        <span class="form-error" id="confirm-error"></span>
+      </div>
+
+      <button class="btn btn--primary btn--full" type="submit" id="signup-btn">Create Account</button>
+
+      <div id="form-error" style="color:var(--danger);font-size:13px;text-align:center;display:none;padding:12px;background:rgba(255,59,48,0.1);border-radius:var(--radius-md);border:1px solid rgba(255,59,48,0.2)"></div>
+      <div id="form-success" style="color:var(--success);font-size:13px;text-align:center;display:none;padding:12px;background:rgba(52,199,89,0.1);border-radius:var(--radius-md);border:1px solid rgba(52,199,89,0.2)"></div>
+
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a href="/pages/login.html">Sign in</a>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+  import { supabase } from '/js/supabase.js';
+  import { toast, initTheme } from '/js/utils/helpers.js';
+
+  initTheme();
+
+  // Redirect if already logged in
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) location.href = '/';
+
+  // Password visibility toggle
+  const pwInput  = document.getElementById('password');
+  const togglePw = document.getElementById('toggle-pw');
+  togglePw.addEventListener('click', () => {
+    const show = pwInput.type === 'password';
+    pwInput.type = show ? 'text' : 'password';
+    togglePw.textContent = show ? '🙈' : '👁';
+  });
+
+  // Live password strength meter
+  const pwBar  = document.getElementById('pw-bar');
+  const pwHint = document.getElementById('pw-hint');
+  pwInput.addEventListener('input', () => {
+    const val = pwInput.value;
+    let score = 0;
+    if (val.length >= 8)             score++;
+    if (/[A-Z]/.test(val))           score++;
+    if (/[0-9]/.test(val))           score++;
+    if (/[^A-Za-z0-9]/.test(val))    score++;
+
+    const levels = [
+      { w: '0%',   c: 'transparent',    t: 'Too short' },
+      { w: '25%',  c: 'var(--danger)',   t: 'Weak' },
+      { w: '50%',  c: 'var(--warning)',  t: 'Fair' },
+      { w: '75%',  c: '#f0b429',         t: 'Good' },
+      { w: '100%', c: 'var(--success)',  t: 'Strong' },
+    ];
+    const lvl = levels[score] || levels[0];
+    pwBar.style.width      = lvl.w;
+    pwBar.style.background = lvl.c;
+    pwHint.textContent     = lvl.t;
+  });
+
+  // Username validation
+  const usernameInput = document.getElementById('username');
+  usernameInput.addEventListener('input', () => {
+    const val = usernameInput.value;
+    const err = document.getElementById('username-error');
+    if (val && !/^[a-z0-9_\-]+$/.test(val.toLowerCase())) {
+      err.textContent = 'Only lowercase letters, numbers, _ and - allowed';
+    } else {
+      err.textContent = '';
+    }
+  });
+
+  // Form submit
+  const form      = document.getElementById('signup-form');
+  const btn       = document.getElementById('signup-btn');
+  const formErr   = document.getElementById('form-error');
+  const formSucc  = document.getElementById('form-success');
+
+  function showError(msg) {
+    formErr.textContent   = msg;
+    formErr.style.display = 'block';
+    formSucc.style.display = 'none';
+  }
+
+  form.addEventListener('submit', async () => {
+    formErr.style.display  = 'none';
+    formSucc.style.display = 'none';
+
+    // Clear field errors
+    ['username','email','password','confirm'].forEach(id => {
+      const el = document.getElementById(`${id}-error`);
+      if (el) el.textContent = '';
+    });
+
+    const username = usernameInput.value.trim().toLowerCase();
+    const email    = document.getElementById('email').value.trim();
+    const password = pwInput.value;
+    const confirm  = document.getElementById('confirm-password').value;
+
+    // Validation
+    if (!username || username.length < 3) {
+      document.getElementById('username-error').textContent = 'Username must be at least 3 characters';
+      return;
+    }
+    if (!/^[a-z0-9_\-]+$/.test(username)) {
+      document.getElementById('username-error').textContent = 'Invalid characters in username';
+      return;
+    }
+    if (!email) {
+      document.getElementById('email-error').textContent = 'Email is required';
+      return;
+    }
+    if (password.length < 8) {
+      document.getElementById('password-error').textContent = 'Password must be at least 8 characters';
+      return;
+    }
+    if (password !== confirm) {
+      document.getElementById('confirm-error').textContent = 'Passwords do not match';
+      return;
+    }
+
+    btn.disabled  = true;
+    btn.innerHTML = '<span class="spinner"></span> Creating account…';
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { username },
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.user && !data.session) {
+        // Email verification required
+        formSucc.textContent   = '✓ Check your email to verify your account, then sign in.';
+        formSucc.style.display = 'block';
+        btn.innerHTML          = 'Check your email';
+      } else {
+        toast('Account created! Welcome to the Lobby.', 'success');
+        setTimeout(() => location.href = '/', 800);
+      }
+    } catch (err) {
+      showError(err.message || 'Signup failed. Please try again.');
+      btn.disabled  = false;
+      btn.innerHTML = 'Create Account';
+    }
+  });
+</script>
+</body>
+</html>

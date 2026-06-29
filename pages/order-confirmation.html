@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Confirmed — Lobby Y2K</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <script src="/js/env.js"></script>
+</head>
+<body>
+<nav class="nav"><a href="/" class="nav__logo"><img src="https://res.cloudinary.com/duw82qno0/image/upload/v1782674045/C705ADF3-47CC-4FC6-A026-73B3F2F27355_ycltrb.png" alt="Lobby Y2K" /></a></nav>
+<main class="page page-enter">
+  <div class="container" style="max-width:640px;text-align:center;padding-top:80px;padding-bottom:80px">
+    <div style="width:80px;height:80px;border-radius:50%;background:var(--violet-dim);border:2px solid var(--violet);display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 28px">✓</div>
+    <h1 class="section-title" style="margin-bottom:12px">Order <span class="text-gradient">Confirmed!</span></h1>
+    <p style="font-size:16px;color:var(--text-secondary);margin-bottom:8px">Thank you for shopping at Lobby Y2K.</p>
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:32px">
+      Our team will review your order and send you a message with shipping details shortly.
+    </p>
+
+    <div class="order-summary" style="text-align:left;margin-bottom:32px" id="order-box">
+      <div class="spinner" style="margin:20px auto;display:block"></div>
+    </div>
+
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn--primary" onclick="location.href='/pages/orders.html'">View My Orders</button>
+      <button class="btn btn--outline" onclick="location.href='/'">Continue Shopping</button>
+    </div>
+  </div>
+</main>
+<script type="module">
+  import { initTheme, formatPrice, statusBadgeHTML, formatDate } from '/js/utils/helpers.js';
+  import { supabase } from '/js/supabase.js';
+  import { OrdersService } from '/js/services/orders.js';
+  initTheme();
+  const orderId = new URLSearchParams(location.search).get('id');
+  if (!orderId) { location.href = '/'; }
+  try {
+    const order = await OrdersService.getOrder(orderId);
+    document.getElementById('order-box').innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em">Order ID</div>
+          <div style="font-family:var(--font-mono);font-size:13px;font-weight:600;margin-top:2px">${order.id.slice(0,8).toUpperCase()}</div>
+        </div>
+        <div>${statusBadgeHTML(order.status)}</div>
+      </div>
+      <div class="summary-row"><span>Date</span><span>${formatDate(order.created_at)}</span></div>
+      <div class="summary-row"><span>Subtotal</span><span>${formatPrice(order.subtotal)}</span></div>
+      <div class="summary-row"><span>Shipping</span><span>${order.shipping > 0 ? formatPrice(order.shipping) : 'TBC'}</span></div>
+      <div class="summary-row summary-row--total"><span>Total</span><span>${formatPrice(order.total)}</span></div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px">Ships to:</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.8">
+          ${order.shipping_address?.full_name}<br/>
+          ${order.shipping_address?.line1}${order.shipping_address?.line2 ? ', ' + order.shipping_address.line2 : ''}<br/>
+          ${order.shipping_address?.city}, ${order.shipping_address?.state} ${order.shipping_address?.postal_code}<br/>
+          ${order.shipping_address?.country}
+        </div>
+      </div>
+    `;
+  } catch(e) {
+    document.getElementById('order-box').innerHTML = `<p style="color:var(--text-muted);font-size:14px">${e.message}</p>`;
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout — Lobby Y2K</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <script src="/js/env.js"></script>
+</head>
+<body>
+
+<nav class="nav" id="main-nav">
+  <a href="/" class="nav__logo"><img src="https://res.cloudinary.com/duw82qno0/image/upload/v1782674045/C705ADF3-47CC-4FC6-A026-73B3F2F27355_ycltrb.png" alt="Lobby Y2K" /></a>
+  <div class="nav__links">
+    <a href="/pages/cart.html" class="nav__link">← Back to Cart</a>
+  </div>
+  <div class="nav__actions">
+    <button class="nav__icon-btn" id="theme-toggle" onclick="handleThemeToggle()">🌙</button>
+    <button class="nav__icon-btn" id="auth-btn">👤</button>
+  </div>
+</nav>
+
+<main class="page page-enter">
+  <div class="container">
+    <div style="padding-top:40px;margin-bottom:32px">
+      <h1 class="section-title">Checkout</h1>
+    </div>
+
+    <div class="checkout-layout">
+
+      <!-- LEFT: FORMS -->
+      <div id="checkout-forms">
+
+        <!-- SECTION 1: SHIPPING -->
+        <div class="checkout-section">
+          <div class="checkout-section__title">
+            <div class="checkout-section__number">1</div>
+            Shipping Address
+          </div>
+          <div class="address-grid">
+            <div class="form-group" style="grid-column:1/-1">
+              <label class="form-label">Full Name</label>
+              <input class="form-input" type="text" id="ship-name" placeholder="Jane Doe" autocomplete="name" required />
+            </div>
+            <div class="form-group" style="grid-column:1/-1">
+              <label class="form-label">Address Line 1</label>
+              <input class="form-input" type="text" id="ship-line1" placeholder="123 Kick Street" autocomplete="address-line1" required />
+            </div>
+            <div class="form-group" style="grid-column:1/-1">
+              <label class="form-label">Address Line 2 (optional)</label>
+              <input class="form-input" type="text" id="ship-line2" placeholder="Apt, Unit, etc." autocomplete="address-line2" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input class="form-input" type="text" id="ship-city" placeholder="Johannesburg" autocomplete="address-level2" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Province</label>
+              <select class="form-input" id="ship-state">
+                <option value="">Select province</option>
+                <option>Gauteng</option><option>Western Cape</option><option>KwaZulu-Natal</option>
+                <option>Eastern Cape</option><option>Limpopo</option><option>Mpumalanga</option>
+                <option>North West</option><option>Free State</option><option>Northern Cape</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Postal Code</label>
+              <input class="form-input" type="text" id="ship-postal" placeholder="2000" autocomplete="postal-code" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Country</label>
+              <input class="form-input" type="text" id="ship-country" value="South Africa" autocomplete="country-name" />
+            </div>
+            <div class="form-group" style="grid-column:1/-1">
+              <label class="form-label">Phone</label>
+              <input class="form-input" type="tel" id="ship-phone" placeholder="0xx xxx xxxx" autocomplete="tel" />
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: BILLING -->
+        <div class="checkout-section">
+          <div class="checkout-section__title">
+            <div class="checkout-section__number">2</div>
+            Billing Address
+          </div>
+          <label class="same-billing">
+            <input type="checkbox" id="same-as-shipping" checked onchange="toggleBilling(this.checked)" />
+            Same as shipping address
+          </label>
+          <div id="billing-form" style="display:none">
+            <div class="address-grid">
+              <div class="form-group" style="grid-column:1/-1">
+                <label class="form-label">Full Name</label>
+                <input class="form-input" type="text" id="bill-name" placeholder="Jane Doe" />
+              </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <label class="form-label">Address Line 1</label>
+                <input class="form-input" type="text" id="bill-line1" placeholder="123 Kick Street" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">City</label>
+                <input class="form-input" type="text" id="bill-city" placeholder="City" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Postal Code</label>
+                <input class="form-input" type="text" id="bill-postal" placeholder="0000" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Country</label>
+                <input class="form-input" type="text" id="bill-country" value="South Africa" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: REVIEW + NOTES -->
+        <div class="checkout-section">
+          <div class="checkout-section__title">
+            <div class="checkout-section__number">3</div>
+            Order Notes (optional)
+          </div>
+          <textarea class="form-input" id="order-notes" rows="3" placeholder="Special instructions, delivery notes…" style="resize:vertical"></textarea>
+        </div>
+
+        <!-- SHIPPING NOTE -->
+        <div style="padding:20px;background:var(--violet-dim);border:1px solid rgba(123,47,255,0.25);border-radius:var(--radius-lg);margin-bottom:20px">
+          <div style="font-family:var(--font-display);font-weight:700;margin-bottom:8px">📦 About Shipping</div>
+          <p style="font-size:14px;color:var(--text-secondary);line-height:1.6">
+            Shipping cost is not calculated automatically. After placing your order, our team will review it and send you a message with the shipping cost to confirm. Your order will be fulfilled after payment is confirmed.
+          </p>
+        </div>
+
+        <button class="btn btn--primary btn--full btn--lg" id="place-order-btn" onclick="placeOrder()">
+          Place Order
+        </button>
+
+        <div id="checkout-error" style="display:none;color:var(--danger);font-size:13px;text-align:center;margin-top:12px;padding:14px;background:rgba(255,59,48,0.1);border-radius:var(--radius-md);border:1px solid rgba(255,59,48,0.2)"></div>
+      </div>
+
+      <!-- RIGHT: ORDER SUMMARY -->
+      <div>
+        <div class="order-summary" id="order-summary-box">
+          <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:800;margin-bottom:20px">Order Summary</h3>
+          <div id="summary-items"><div class="spinner" style="margin:20px auto;display:block"></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<script type="module">
+  import { initTheme, toggleTheme, formatPrice, toast } from '/js/utils/helpers.js';
+  import { supabase } from '/js/supabase.js';
+  import CartService from '/js/services/cart.js';
+  import { OrdersService } from '/js/services/orders.js';
+
+  initTheme();
+  document.getElementById('theme-toggle').textContent = (localStorage.getItem('lobby-theme')||'dark') === 'dark' ? '🌙' : '☀️';
+  window.handleThemeToggle = () => { const n = toggleTheme(); document.getElementById('theme-toggle').textContent = n === 'dark' ? '🌙' : '☀️'; };
+
+  // Auth guard
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) location.href = `/pages/login.html?redirect=${encodeURIComponent(location.href)}`;
+
+  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+
+  let cartData = null;
+
+  // Load cart summary
+  async function loadSummary() {
+    try {
+      cartData = await CartService.getCart();
+      if (!cartData.items?.length) {
+        location.href = '/pages/cart.html';
+        return;
+      }
+
+      document.getElementById('summary-items').innerHTML = `
+        ${cartData.items.map(item => `
+          <div class="summary-row">
+            <span style="font-size:13px;color:var(--text-secondary)">
+              ${item.products?.name} × ${item.quantity}
+            </span>
+            <span style="font-weight:600">${formatPrice(item.price * item.quantity)}</span>
+          </div>
+        `).join('')}
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span style="font-weight:700">${formatPrice(cartData.total)}</span>
+        </div>
+        <div class="summary-row">
+          <span>Shipping</span>
+          <span style="color:var(--text-muted);font-style:italic;font-size:13px">TBC via message</span>
+        </div>
+        <div class="summary-row summary-row--total">
+          <span>Est. Total</span>
+          <span>${formatPrice(cartData.total)}</span>
+        </div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+          ${cartData.items.map(item => `
+            <div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+              <img src="${item.image || ''}" style="width:48px;height:48px;object-fit:cover;border-radius:var(--radius-sm);background:var(--surface-2)"
+                onerror="this.style.display='none'" />
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.products?.name}</div>
+                <div style="font-size:12px;color:var(--text-muted)">${item.product_variants ? `UK${item.product_variants.size} · ${item.product_variants.color}` : ''}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } catch (err) {
+      document.getElementById('summary-items').innerHTML = `<p style="color:var(--danger);font-size:13px">${err.message}</p>`;
+    }
+  }
+
+  window.toggleBilling = (checked) => {
+    document.getElementById('billing-form').style.display = checked ? 'none' : 'block';
+  };
+
+  // Place order
+  window.placeOrder = async () => {
+    const errDiv = document.getElementById('checkout-error');
+    errDiv.style.display = 'none';
+
+    // Collect shipping address
+    const shipName   = document.getElementById('ship-name').value.trim();
+    const shipLine1  = document.getElementById('ship-line1').value.trim();
+    const shipCity   = document.getElementById('ship-city').value.trim();
+    const shipPostal = document.getElementById('ship-postal').value.trim();
+    const shipState  = document.getElementById('ship-state').value;
+    const shipCountry= document.getElementById('ship-country').value.trim();
+    const shipPhone  = document.getElementById('ship-phone').value.trim();
+
+    if (!shipName || !shipLine1 || !shipCity || !shipPostal) {
+      errDiv.textContent = 'Please fill in all required shipping fields.';
+      errDiv.style.display = 'block';
+      document.querySelector('.checkout-section').scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+
+    const shippingAddress = {
+      full_name: shipName,
+      line1: shipLine1,
+      line2: document.getElementById('ship-line2').value.trim(),
+      city: shipCity,
+      state: shipState,
+      postal_code: shipPostal,
+      country: shipCountry,
+      phone: shipPhone,
+    };
+
+    const sameAsBilling = document.getElementById('same-as-shipping').checked;
+    const billingAddress = sameAsBilling ? shippingAddress : {
+      full_name: document.getElementById('bill-name').value.trim(),
+      line1:     document.getElementById('bill-line1').value.trim(),
+      city:      document.getElementById('bill-city').value.trim(),
+      postal_code: document.getElementById('bill-postal').value.trim(),
+      country:   document.getElementById('bill-country').value.trim(),
+    };
+
+    const btn = document.getElementById('place-order-btn');
+    btn.disabled  = true;
+    btn.innerHTML = '<span class="spinner"></span> Placing Order…';
+
+    try {
+      const order = await OrdersService.createOrder({
+        shippingAddress,
+        billingAddress,
+        cartId:   cartData.cart?.id,
+        items:    cartData.items,
+        subtotal: cartData.total,
+      });
+
+      toast('Order placed! We\'ll message you about shipping.', 'success');
+      setTimeout(() => location.href = `/pages/order-confirmation.html?id=${order.id}`, 800);
+    } catch (err) {
+      errDiv.textContent   = err.message || 'Failed to place order. Please try again.';
+      errDiv.style.display = 'block';
+      btn.disabled  = false;
+      btn.innerHTML = 'Place Order';
+    }
+  };
+
+  loadSummary();
+
+  const authBtn = document.getElementById('auth-btn');
+  if (authBtn) { authBtn.textContent = '👤'; authBtn.onclick = () => location.href = '/pages/profile.html'; }
+</script>
+</body>
+</html>

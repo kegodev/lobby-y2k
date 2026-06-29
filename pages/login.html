@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — Lobby Y2K</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <script src="/js/env.js"></script>
+</head>
+<body>
+
+<div class="auth-page">
+
+  <!-- LEFT VISUAL PANEL -->
+  <div class="auth-page__visual">
+    <div class="auth-page__visual-bg"></div>
+    <div class="auth-page__visual-content">
+      <img src="https://res.cloudinary.com/duw82qno0/image/upload/v1782674045/C705ADF3-47CC-4FC6-A026-73B3F2F27355_ycltrb.png" style="height:48px;object-fit:contain;margin-bottom:32px" alt="Lobby Y2K" />
+      <p class="auth-page__visual-title">The Lobby<br/>is Open.</p>
+      <p class="auth-page__visual-sub">Premium sneakers. Authentic drops. Your account, your culture.</p>
+    </div>
+  </div>
+
+  <!-- RIGHT FORM SIDE -->
+  <div class="auth-page__form-side">
+
+    <div class="auth-logo">
+      <a href="/"><img src="https://res.cloudinary.com/duw82qno0/image/upload/v1782674045/C705ADF3-47CC-4FC6-A026-73B3F2F27355_ycltrb.png" alt="Lobby Y2K" /></a>
+    </div>
+
+    <h1 class="auth-title">Welcome back</h1>
+    <p class="auth-subtitle">Sign in to your Lobby account</p>
+
+    <form class="auth-form" id="login-form" onsubmit="return false">
+
+      <div class="form-group">
+        <label class="form-label" for="email">Email</label>
+        <input class="form-input" type="email" id="email" placeholder="you@email.com" autocomplete="email" required />
+        <span class="form-error" id="email-error"></span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div class="input-group">
+          <input class="form-input" type="password" id="password" placeholder="••••••••" autocomplete="current-password" required />
+          <button type="button" class="input-group__suffix" id="toggle-pw" aria-label="Show password">👁</button>
+        </div>
+        <span class="form-error" id="password-error"></span>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <label class="checkbox-group">
+          <input type="checkbox" id="remember-me" />
+          Remember me
+        </label>
+        <a href="/pages/forgot-password.html" style="font-size:13px;color:var(--violet);font-weight:600">Forgot password?</a>
+      </div>
+
+      <button class="btn btn--primary btn--full" type="submit" id="login-btn">
+        Sign In
+      </button>
+
+      <div id="form-error" style="color:var(--danger);font-size:13px;text-align:center;display:none"></div>
+
+    </form>
+
+    <div class="auth-footer">
+      Don't have an account? <a href="/pages/signup.html">Create one</a>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+  import { supabase } from '/js/supabase.js';
+  import { toast, initTheme } from '/js/utils/helpers.js';
+
+  initTheme();
+
+  // Toggle password visibility
+  const pwInput  = document.getElementById('password');
+  const togglePw = document.getElementById('toggle-pw');
+  togglePw.addEventListener('click', () => {
+    const show = pwInput.type === 'password';
+    pwInput.type = show ? 'text' : 'password';
+    togglePw.textContent = show ? '🙈' : '👁';
+  });
+
+  // Redirect if already logged in
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    const redirect = new URLSearchParams(location.search).get('redirect') || '/';
+    location.href = redirect;
+  }
+
+  // Form submit
+  const form    = document.getElementById('login-form');
+  const btn     = document.getElementById('login-btn');
+  const formErr = document.getElementById('form-error');
+
+  form.addEventListener('submit', async () => {
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    // Clear errors
+    formErr.style.display = 'none';
+    document.getElementById('email-error').textContent    = '';
+    document.getElementById('password-error').textContent = '';
+
+    if (!email)    { document.getElementById('email-error').textContent    = 'Email is required'; return; }
+    if (!password) { document.getElementById('password-error').textContent = 'Password is required'; return; }
+
+    btn.disabled     = true;
+    btn.innerHTML    = '<span class="spinner"></span> Signing in…';
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+
+      toast('Welcome back!', 'success');
+      const redirect = new URLSearchParams(location.search).get('redirect') || '/';
+      setTimeout(() => location.href = redirect, 600);
+    } catch (err) {
+      formErr.textContent  = err.message || 'Sign in failed. Please try again.';
+      formErr.style.display = 'block';
+      btn.disabled  = false;
+      btn.innerHTML = 'Sign In';
+    }
+  });
+</script>
+</body>
+</html>
