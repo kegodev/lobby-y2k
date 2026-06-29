@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 — Lobby Y2K</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <script src="/js/env.js"></script>
+</head>
+<body>
+<nav class="nav">
+  <a href="/" class="nav__logo"><img src="https://res.cloudinary.com/duw82qno0/image/upload/v1782674045/C705ADF3-47CC-4FC6-A026-73B3F2F27355_ycltrb.png" alt="Lobby Y2K" /></a>
+</nav>
+<main class="page" style="display:flex;align-items:center;justify-content:center;min-height:100dvh">
+  <div class="empty-state" style="padding:40px 20px">
+    <div style="font-family:var(--font-display);font-size:8rem;font-weight:800;letter-spacing:-0.06em;line-height:1;margin-bottom:16px">
+      <span class="text-gradient">404</span>
+    </div>
+    <h2 class="empty-state__title">Page not found</h2>
+    <p class="empty-state__sub">This page doesn't exist or the link might be broken. Let's get you back to the Lobby.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn--primary btn--lg" onclick="location.href='/'">Go Home</button>
+      <button class="btn btn--outline btn--lg" onclick="location.href='/pages/search.html'">Shop Sneakers</button>
+    </div>
+  </div>
+</main>
+<script>
+  const stored = localStorage.getItem('lobby-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', stored);
+</script>
+</body>
+</html>
