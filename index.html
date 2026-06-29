@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lobby Y2K — Premium Sneakers</title>
+  <meta name="description" content="Lobby Y2K — The ultimate destination for premium and rare sneakers." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/css/main.css" />
+
+  <!-- Environment config (replace with your actual keys) -->
+  <script>
+    window.__ENV = {
+      SUPABASE_URL: 'https://oninrwdiqrtemoeuajns.supabase.co',
+      SUPABASE_ANON_KEY: 'sb_publishable_SOnAzD0JZouJGRQ_TOgcIA_yKHMHlId',
+      STRIPE_PUBLISHABLE_KEY: 'YOUR_STRIPE_PUBLISHABLE_KEY',
+    };
+  </script>
+</head>
+<body>
+
+  <!-- SPLASH SCREEN -->
+  <div class="splash" id="splash">
+    <img class="splash__logo" src="https://res.cloudinary.com/duw82qno0/image/upload/v1782674045/C705ADF3-47CC-4FC6-A026-73B3F2F27355_ycltrb.png" alt="Lobby Y2K" />
+    <div class="splash__bar"><div class="splash__progress"></div></div>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav class="nav" id="main-nav">
+    <a href="/" class="nav__logo">
+      <img src="https://res.cloudinary.com/duw82qno0/image/upload/v1782674045/C705ADF3-47CC-4FC6-A026-73B3F2F27355_ycltrb.png" alt="Lobby Y2K" />
+    </a>
+
+    <div class="nav__links">
+      <a href="/" class="nav__link active">Home</a>
+      <a href="/pages/search.html" class="nav__link">Shop</a>
+      <a href="/pages/search.html?brand=Nike" class="nav__link">Nike</a>
+      <a href="/pages/search.html?brand=Jordan" class="nav__link">Jordan</a>
+      <a href="/pages/search.html?brand=Adidas" class="nav__link">Adidas</a>
+    </div>
+
+    <div class="nav__actions">
+      <button class="nav__icon-btn" onclick="location.href='/pages/search.html'" aria-label="Search">🔍</button>
+      <button class="nav__icon-btn" id="wishlist-nav-btn" onclick="requireAuthNav('/pages/wishlist.html')" aria-label="Wishlist">♡</button>
+      <button class="nav__icon-btn" id="cart-nav-btn" onclick="requireAuthNav('/pages/cart.html')" aria-label="Cart" style="position:relative">
+        🛒
+        <span class="cart-badge" style="display:none">0</span>
+      </button>
+      <button class="nav__icon-btn" id="theme-toggle" onclick="handleThemeToggle()" aria-label="Toggle theme">🌙</button>
+      <button class="nav__icon-btn" id="auth-btn" aria-label="Account">👤</button>
+    </div>
+  </nav>
+
+  <!-- MAIN PAGE -->
+  <main class="page page-enter">
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+      <div class="hero__bg" id="hero-bg"></div>
+      <div class="container" style="position:relative;z-index:1;width:100%">
+        <div class="hero__content">
+          <div class="hero__eyebrow">New Season Drop</div>
+          <h1 class="hero__title">The <span>Lobby</span><br/>is Open.</h1>
+          <p class="hero__subtitle">Where rare kicks meet everyday culture. Premium sneakers, authentic drops, future classics.</p>
+          <div class="hero__actions">
+            <button class="btn btn--primary btn--lg" onclick="location.href='/pages/search.html'">Shop Now</button>
+            <button class="btn btn--outline btn--lg" onclick="document.getElementById('featured').scrollIntoView({behavior:'smooth'})">Explore Drops</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SHIMMER LINE DIVIDER -->
+    <div class="shimmer-line"></div>
+
+    <!-- BRAND STRIP -->
+    <div class="brand-strip">
+      <div class="brand-strip__track" id="brand-track"></div>
+    </div>
+
+    <!-- FEATURED PRODUCTS -->
+    <section class="section" id="featured">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Featured <span class="text-gradient">Drops</span></h2>
+            <p class="section-subtitle">Curated heat — fresh arrivals &amp; all-time essentials</p>
+          </div>
+          <a href="/pages/search.html" class="btn btn--outline btn--sm">View All</a>
+        </div>
+        <div class="product-grid" id="featured-grid">
+          <!-- Skeletons -->
+        </div>
+      </div>
+    </section>
+
+    <!-- BRAND SECTIONS -->
+    <section class="section section--sm" id="brands-section">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Shop by <span class="text-gradient">Brand</span></h2>
+            <p class="section-subtitle">Your favorite houses, all in one lobby</p>
+          </div>
+        </div>
+        <div class="brands-grid" id="brands-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;"></div>
+      </div>
+    </section>
+
+    <!-- NEWEST ARRIVALS -->
+    <section class="section" id="newest">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Just <span class="text-gradient">Landed</span></h2>
+            <p class="section-subtitle">The latest additions to the collection</p>
+          </div>
+          <a href="/pages/search.html?sort=newest" class="btn btn--outline btn--sm">See More</a>
+        </div>
+        <div class="product-grid" id="newest-grid"></div>
+      </div>
+    </section>
+
+    <!-- PROMO BANNER -->
+    <section class="section--sm">
+      <div class="container">
+        <div class="promo-banner" style="
+          border-radius: var(--radius-xl);
+          background: linear-gradient(135deg, var(--surface-1), var(--surface-0));
+          border: 1px solid var(--border-mid);
+          padding: 60px 48px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 32px;
+          overflow: hidden;
+          position: relative;
+        ">
+          <div style="position:absolute;inset:0;background:radial-gradient(circle at 70% 50%, rgba(123,47,255,0.15), transparent 60%);pointer-events:none;"></div>
+          <div style="position:relative;z-index:1">
+            <div class="hero__eyebrow" style="margin-bottom:16px">Free Shipping</div>
+            <h2 style="font-family:var(--font-display);font-size:clamp(1.5rem,3vw,2.5rem);font-weight:800;letter-spacing:-0.03em;margin-bottom:12px">
+              On all orders<br/>over R1,500
+            </h2>
+            <p style="color:var(--text-secondary);max-width:340px;font-size:15px">
+              Authentic. Guaranteed. Delivered to your door with care from the Lobby.
+            </p>
+          </div>
+          <div style="position:relative;z-index:1;flex-shrink:0">
+            <button class="btn btn--primary btn--lg" onclick="location.href='/pages/search.html'">Shop Now →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <img src="https://res.cloudinary.com/duw82qno0/image/upload/v1782674045/C705ADF3-47CC-4FC6-A026-73B3F2F27355_ycltrb.png" alt="Lobby Y2K" />
+          <p class="footer__tagline">Premium sneakers and streetwear. Authentic drops, curated for the culture.</p>
+        </div>
+        <div>
+          <p class="footer__col-title">Shop</p>
+          <div class="footer__links">
+            <a href="/pages/search.html" class="footer__link">All Sneakers</a>
+            <a href="/pages/search.html?brand=Nike" class="footer__link">Nike</a>
+            <a href="/pages/search.html?brand=Jordan" class="footer__link">Jordan</a>
+            <a href="/pages/search.html?brand=Adidas" class="footer__link">Adidas</a>
+            <a href="/pages/search.html?brand=New Balance" class="footer__link">New Balance</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer__col-title">Account</p>
+          <div class="footer__links">
+            <a href="/pages/login.html" class="footer__link">Sign In</a>
+            <a href="/pages/signup.html" class="footer__link">Create Account</a>
+            <a href="/pages/orders.html" class="footer__link">My Orders</a>
+            <a href="/pages/wishlist.html" class="footer__link">Wishlist</a>
+            <a href="/pages/messages.html" class="footer__link">Messages</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer__col-title">Help</p>
+          <div class="footer__links">
+            <a href="#" class="footer__link">Shipping</a>
+            <a href="#" class="footer__link">Returns</a>
+            <a href="#" class="footer__link">Authentication</a>
+            <a href="#" class="footer__link">Size Guide</a>
+            <a href="#" class="footer__link">Contact</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>© 2024 Lobby Y2K. All rights reserved.</p>
+        <p>Made with heat 🔥</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- BOTTOM NAV (mobile) -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <a href="/" class="bottom-nav__item active">
+      <span class="icon">🏠</span>
+      <span class="bottom-nav__label">Home</span>
+    </a>
+    <a href="/pages/search.html" class="bottom-nav__item">
+      <span class="icon">🔍</span>
+      <span class="bottom-nav__label">Shop</span>
+    </a>
+    <a href="/pages/wishlist.html" class="bottom-nav__item" id="wishlist-bottom">
+      <span class="icon">♡</span>
+      <span class="bottom-nav__label">Saved</span>
+    </a>
+    <a href="/pages/cart.html" class="bottom-nav__item" style="position:relative" id="cart-bottom">
+      <span class="icon">🛒</span>
+      <span class="cart-badge" style="display:none">0</span>
+      <span class="bottom-nav__label">Cart</span>
+    </a>
+    <a href="#" class="bottom-nav__item" id="account-bottom">
+      <span class="icon">👤</span>
+      <span class="bottom-nav__label">Account</span>
+    </a>
+  </nav>
+
+  <script type="module">
+    import { initTheme, toggleTheme, updateCartBadge, showSkeletons, productCardHTML, toast } from '/js/utils/helpers.js';
+    import { supabase } from '/js/supabase.js';
+    import ProductsService from '/js/services/products.js';
+
+    // ── Init theme ──────────────────────────────────────────
+    const theme = initTheme();
+    document.getElementById('theme-toggle').textContent = theme === 'dark' ? '🌙' : '☀️';
+
+    window.handleThemeToggle = () => {
+      const next = toggleTheme();
+      document.getElementById('theme-toggle').textContent = next === 'dark' ? '🌙' : '☀️';
+    };
+
+    // ── Scrolled nav ────────────────────────────────────────
+    window.addEventListener('scroll', () => {
+      document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    // ── Splash screen ───────────────────────────────────────
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('splash').classList.add('hidden');
+        setTimeout(() => document.getElementById('splash').remove(), 700);
+      }, 1800);
+    });
+
+    // ── Auth state → update UI ──────────────────────────────
+    async function updateAuthUI() {
+      const { data: { user } } = await supabase.auth.getUser();
+      const authBtn    = document.getElementById('auth-btn');
+      const accountBot = document.getElementById('account-bottom');
+
+      if (user) {
+        authBtn.textContent = '👤';
+        authBtn.onclick = () => location.href = '/pages/profile.html';
+        if (accountBot) { accountBot.href = '/pages/profile.html'; }
+        updateCartBadge();
+      } else {
+        authBtn.textContent = '🔑';
+        authBtn.onclick = () => location.href = '/pages/login.html';
+        if (accountBot) { accountBot.href = '/pages/login.html'; }
+      }
+    }
+
+    updateAuthUI();
+    supabase.auth.onAuthStateChange(updateAuthUI);
+
+    // ── Require auth helper ─────────────────────────────────
+    window.requireAuthNav = async (url) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast('Sign in to continue', 'info');
+        location.href = `/pages/login.html?redirect=${encodeURIComponent(url)}`;
+      } else {
+        location.href = url;
+      }
+    };
+
+    // ── Hero parallax (lightweight) ─────────────────────────
+    const heroImages = [
+      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1600',
+      'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1600',
+      'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=1600',
+    ];
+    let heroIdx = 0;
+    const heroBg = document.getElementById('hero-bg');
+    heroBg.style.backgroundImage = `url('${heroImages[0]}')`;
+    setInterval(() => {
+      heroIdx = (heroIdx + 1) % heroImages.length;
+      heroBg.style.backgroundImage = `url('${heroImages[heroIdx]}')`;
+    }, 5000);
+
+    // ── Brand strip ─────────────────────────────────────────
+    const brands = ['Nike', 'Jordan', 'Adidas', 'Puma', 'New Balance', 'Converse', 'Vans', 'Reebok', 'ASICS', 'Saucony'];
+    const track  = document.getElementById('brand-track');
+    const items  = [...brands, ...brands].map(b =>
+      `<span class="brand-strip__item" onclick="location.href='/pages/search.html?brand=${encodeURIComponent(b)}'">${b}</span>`
+    ).join('');
+    track.innerHTML = items;
+
+    // ── Brands grid ─────────────────────────────────────────
+    const brandColors = {
+      Nike: '#FF6B35', Jordan: '#CC0000', Adidas: '#000000',
+      Puma: '#FF0000', 'New Balance': '#CF4520', Converse: '#FF6B35',
+      Vans: '#EF3B24',
+    };
+    const brandsGrid = document.getElementById('brands-grid');
+    brandsGrid.innerHTML = brands.slice(0, 7).map(b => `
+      <div onclick="location.href='/pages/search.html?brand=${encodeURIComponent(b)}'" style="
+        background: var(--surface-1);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 28px 16px;
+        text-align: center;
+        cursor: pointer;
+        transition: all var(--dur-mid) var(--ease-spring);
+        font-family: var(--font-display);
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--text-secondary);
+      "
+      onmouseenter="this.style.transform='translateY(-4px)';this.style.borderColor='var(--border-mid)';this.style.color='var(--text-primary)'"
+      onmouseleave="this.style.transform='';this.style.borderColor='var(--border)';this.style.color='var(--text-secondary)'"
+      >${b}</div>
+    `).join('');
+
+    // ── Featured products ────────────────────────────────────
+    async function loadFeatured() {
+      const grid = document.getElementById('featured-grid');
+      showSkeletons(grid, 8);
+      try {
+        const products = await ProductsService.getFeatured(8);
+        grid.innerHTML = products.map(p => productCardHTML(p)).join('');
+      } catch (e) {
+        grid.innerHTML = `<p style="color:var(--text-muted);grid-column:1/-1;text-align:center;padding:40px">Could not load products.</p>`;
+      }
+    }
+
+    // ── Newest arrivals ──────────────────────────────────────
+    async function loadNewest() {
+      const grid = document.getElementById('newest-grid');
+      showSkeletons(grid, 8);
+      try {
+        const products = await ProductsService.getNewest(8);
+        grid.innerHTML = products.map(p => productCardHTML(p)).join('');
+      } catch (e) {
+        grid.innerHTML = '';
+      }
+    }
+
+    loadFeatured();
+    loadNewest();
+  </script>
+</body>
+</html>
